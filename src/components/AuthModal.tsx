@@ -65,6 +65,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode }) => {
         setFullName('')
       }
     } catch (error: any) {
+      console.error('Auth error:', error)
+      console.error('Error details:', {
+        message: error.message,
+        status: error.status,
+        statusText: error.statusText,
+        code: error.code
+      })
       toast({
         title: "Error",
         description: error.message || "Something went wrong. Please try again.",
