@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Play, Sparkles, ArrowRight } from 'lucide-react';
+import AuthModal from './AuthModal';
 
 const Hero: React.FC = () => {
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signup');
+
   return (
     <section className="relative min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 overflow-hidden">
       {/* Background Pattern */}
@@ -30,7 +34,10 @@ const Hero: React.FC = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <button 
                 className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
-                onClick={() => document.getElementById('create')?.scrollIntoView({ behavior: 'smooth' })}
+                onClick={() => {
+                  setAuthMode('signup');
+                  setAuthModalOpen(true);
+                }}
               >
                 <Play className="h-5 w-5 mr-2" />
                 Start Creating
@@ -74,6 +81,13 @@ const Hero: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      {/* Auth Modal */}
+      <AuthModal 
+        isOpen={authModalOpen} 
+        onClose={() => setAuthModalOpen(false)} 
+        mode={authMode} 
+      />
     </section>
   );
 };
