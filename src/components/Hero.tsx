@@ -35,7 +35,7 @@ const Hero: React.FC = () => {
               <button 
                 className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
                 onClick={() => {
-                  setAuthMode('signup');
+                  setAuthMode('signin');
                   setAuthModalOpen(true);
                 }}
               >
@@ -44,9 +44,12 @@ const Hero: React.FC = () => {
               </button>
               <button 
                 className="border-2 border-purple-400 text-purple-300 hover:bg-purple-400 hover:text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 flex items-center justify-center"
-                onClick={() => document.getElementById('templates')?.scrollIntoView({ behavior: 'smooth' })}
+                onClick={() => {
+                  setAuthMode('signup');
+                  setAuthModalOpen(true);
+                }}
               >
-                Browse Templates
+                Sign Up Free
                 <ArrowRight className="h-5 w-5 ml-2" />
               </button>
             </div>
