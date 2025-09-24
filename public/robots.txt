@@ -1,14 +1,17 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
+# VidVelora Robots.txt
 User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://vidvelora.netlify.app/sitemap.xml
+
+# Crawl-delay for better server performance
+Crawl-delay: 1
+
+# Block access to admin areas
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /api/
+
+# Allow all other content
 Allow: /
