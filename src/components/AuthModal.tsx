@@ -32,6 +32,16 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode }) => {
     e.preventDefault()
     setLoading(true)
 
+    // Add timeout to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      setLoading(false)
+      toast({
+        title: "Timeout",
+        description: "Request took too long. Please try again.",
+        variant: "destructive",
+      })
+    }, 10000) // 10 second timeout
+
     try {
       if (mode === 'signin') {
         await signIn(email, password)
@@ -39,17 +49,21 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode }) => {
           title: "Welcome back!",
           description: "You've successfully signed in.",
         })
+        onClose()
+        setEmail('')
+        setPassword('')
+        setFullName('')
       } else {
         await signUp(email, password, fullName)
         toast({
           title: "Account created!",
           description: "Please check your email to verify your account.",
         })
+        onClose()
+        setEmail('')
+        setPassword('')
+        setFullName('')
       }
-      onClose()
-      setEmail('')
-      setPassword('')
-      setFullName('')
     } catch (error: any) {
       toast({
         title: "Error",
@@ -57,6 +71,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode }) => {
         variant: "destructive",
       })
     } finally {
+      clearTimeout(timeoutId)
       setLoading(false)
     }
   }
@@ -147,6 +162,19 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode }) => {
               mode === 'signin' ? 'Sign In' : 'Create Account'
             )}
           </button>
+          
+          {loading && (
+            <button
+              type="button"
+              onClick={() => {
+                setLoading(false)
+                onClose()
+              }}
+              className="w-full mt-3 bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 rounded-lg font-medium transition-colors"
+            >
+              Cancel
+            </button>
+          )}
         </form>
 
         <div className="px-6 pb-6">
