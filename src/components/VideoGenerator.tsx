@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Play, Download, Share2, Clock, Sparkles } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { VideoService } from '@/lib/videoService';
+import { RunwayAPI } from '@/lib/runwayAPI';
 import { toast } from '@/components/ui/use-toast';
 
 interface GeneratedVideo {
@@ -32,10 +33,19 @@ const VideoGenerator: React.FC = () => {
     setIsGenerating(true);
     
     try {
+      // Generate video using RunwayML API
+      const runwayResponse = await RunwayAPI.generateVideo({
+        prompt,
+        duration: 4, // 4 seconds for RunwayML
+        style: 'cinematic',
+        aspect_ratio: '16:9'
+      });
+
+      // Save to database
       const response = await VideoService.generateVideo({
         prompt,
-        duration: 60, // 1 minute default
-        style: 'professional'
+        duration: 4,
+        style: 'cinematic'
       }, user.id);
 
       const newVideo: GeneratedVideo = {
