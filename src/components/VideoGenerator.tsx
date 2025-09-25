@@ -20,6 +20,32 @@ const VideoGenerator: React.FC = () => {
   const [videos, setVideos] = useState<GeneratedVideo[]>([]);
   const { user } = useAuth();
 
+  // Simulate progress updates
+  const simulateProgress = (videoId: string) => {
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += Math.random() * 15; // Random progress increments
+      if (progress >= 100) {
+        progress = 100;
+        clearInterval(interval);
+        // Mark as completed after 30-60 seconds
+        setTimeout(() => {
+          setVideos(prev => prev.map(v => 
+            v.id === videoId 
+              ? { ...v, status: 'completed', progress: 100, duration: '0:04' }
+              : v
+          ));
+        }, 2000);
+      } else {
+        setVideos(prev => prev.map(v => 
+          v.id === videoId 
+            ? { ...v, progress: Math.round(progress) }
+            : v
+        ));
+      }
+    }, 1000);
+  };
+
   const handleGenerate = async () => {
     if (!prompt.trim() || !user) {
       toast({
@@ -65,12 +91,15 @@ const VideoGenerator: React.FC = () => {
         prompt,
         thumbnail: 'https://d64gsuwffb701.cloudfront.net/68d353f7219af5c54a6ed682_1758680186261_09e95541.',
         duration: '0:00',
-        status: videoResponse.status,
-        progress: videoResponse.progress
+        status: 'generating',
+        progress: 0
       };
       
       setVideos(prev => [newVideo, ...prev]);
       setPrompt('');
+      
+      // Start progress simulation
+      simulateProgress(videoResponse.id);
       
       toast({
         title: "Video Generation Started",
