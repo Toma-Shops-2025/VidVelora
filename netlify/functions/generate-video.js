@@ -8,7 +8,6 @@ exports.handler = async (event, context) => {
   try {
     const { prompt, duration, style, aspect_ratio } = JSON.parse(event.body);
     
-    // Use Node.js https module instead of fetch
     const postData = JSON.stringify({
       prompt,
       duration: duration || 4,
@@ -39,7 +38,10 @@ exports.handler = async (event, context) => {
         
         res.on('end', () => {
           if (res.statusCode !== 200) {
-            reject(new Error(`Runway API error: ${res.statusCode} ${res.statusMessage}`));
+            resolve({
+              statusCode: 500,
+              body: JSON.stringify({ error: `Runway API error: ${res.statusCode} ${res.statusMessage}` })
+            });
             return;
           }
           
@@ -62,13 +64,19 @@ exports.handler = async (event, context) => {
               })
             });
           } catch (parseError) {
-            reject(new Error(`Failed to parse response: ${parseError.message}`));
+            resolve({
+              statusCode: 500,
+              body: JSON.stringify({ error: `Failed to parse response: ${parseError.message}` })
+            });
           }
         });
       });
 
       req.on('error', (error) => {
-        reject(new Error(`Request failed: ${error.message}`));
+        resolve({
+          statusCode: 500,
+          body: JSON.stringify({ error: `Request failed: ${error.message}` })
+        });
       });
 
       req.write(postData);
