@@ -1,10 +1,25 @@
 import React, { useState } from 'react';
 import { Play, Sparkles, ArrowRight } from 'lucide-react';
 import AuthModal from './AuthModal';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const Hero: React.FC = () => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signup');
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleStartCreating = () => {
+    if (user) {
+      // User is logged in, navigate to video generation page
+      navigate('/generate');
+    } else {
+      // User is not logged in, show sign in modal
+      setAuthMode('signin');
+      setAuthModalOpen(true);
+    }
+  };
 
   return (
     <section className="relative min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 overflow-hidden">
@@ -34,13 +49,10 @@ const Hero: React.FC = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <button 
                 className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
-                onClick={() => {
-                  setAuthMode('signin');
-                  setAuthModalOpen(true);
-                }}
+                onClick={handleStartCreating}
               >
                 <Play className="h-5 w-5 mr-2" />
-                Start Creating
+                {user ? 'Start Creating' : 'Start Creating'}
               </button>
               <button 
                 className="border-2 border-purple-400 text-purple-300 hover:bg-purple-400 hover:text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 flex items-center justify-center"
