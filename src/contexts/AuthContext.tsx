@@ -33,7 +33,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSupabaseUser(session?.user ?? null)
       if (session?.user) {
-        fetchUserProfile(session.user.id)
+        // Create a basic user object immediately
+        const basicUser = {
+          id: session.user.id,
+          email: session.user.email || '',
+          full_name: session.user.user_metadata?.full_name || '',
+          is_admin: false,
+          avatar_url: null
+        }
+        console.log('Setting initial user from session:', basicUser)
+        setUser(basicUser)
+        setLoading(false)
       } else {
         setLoading(false)
       }
@@ -45,10 +55,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.log('Auth state change:', event, session?.user?.id)
         setSupabaseUser(session?.user ?? null)
         if (session?.user) {
-          // Only fetch profile if we don't already have the user
-          if (!user || user.id !== session.user.id) {
-            await fetchUserProfile(session.user.id)
+          // Create a basic user object immediately
+          const basicUser = {
+            id: session.user.id,
+            email: session.user.email || '',
+            full_name: session.user.user_metadata?.full_name || '',
+            is_admin: false,
+            avatar_url: null
           }
+          console.log('Setting user from session:', basicUser)
+          setUser(basicUser)
+          setLoading(false)
         } else {
           setUser(null)
           setLoading(false)
