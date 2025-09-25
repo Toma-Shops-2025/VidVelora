@@ -1,3 +1,5 @@
+const https = require('https');
+
 exports.handler = async (event, context) => {
   // Handle CORS preflight
   if (event.httpMethod === 'OPTIONS') {
@@ -29,42 +31,128 @@ exports.handler = async (event, context) => {
           'Access-Control-Allow-Origin': '*'
         },
         body: JSON.stringify({ 
-          error: 'RunwayML API key not found in environment variables',
-          debug: {
-            hasApiKey: !!apiKey,
-            apiKeyLength: apiKey ? apiKey.length : 0,
-            prompt: prompt
-          }
+          error: 'RunwayML API key not found in environment variables'
         })
       };
     }
 
-    // For now, return a successful mock response
-    // This will help us test the frontend while we debug the API
-    return {
-      statusCode: 200,
+    const postData = JSON.stringify({
+      prompt,
+      duration: duration || 4,
+      style: style || 'cinematic',
+      aspect_ratio: aspect_ratio || '16:9',
+      quality: 'high'
+    });
+
+    const options = {
+      hostname: 'api.runwayml.com',
+      port: 443,
+      path: '/v1/gen4_turbo/video/generate',
+      method: 'POST',
       headers: {
+        'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS'
-      },
-      body: JSON.stringify({
-        id: 'runway-video-' + Date.now(),
-        status: 'pending',
-        video_url: null,
-        thumbnail_url: null,
-        duration: 4,
-        message: 'Video generation started - RunwayML API integration in progress',
-        debug: {
-          hasApiKey: !!apiKey,
-          apiKeyLength: apiKey.length,
-          prompt: prompt
-        }
-      })
+        'Content-Length': Buffer.byteLength(postData)
+      }
     };
 
+    return new Promise((resolve) => {
+      const req = https.request(options, (res) => {
+        let data = '';
+        
+        res.on('data', (chunk) => {
+          data += chunk;
+        });
+        
+        res.on('end', () => {
+          console.log('RunwayML API Response:', {
+            statusCode: res.statusCode,
+            headers: res.headers,
+            body: data
+          });
+
+          if (res.statusCode !== 200) {
+            resolve({
+              statusCode: 500,
+              headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+              },
+              body: JSON.stringify({ 
+                error: `Runway API error: ${res.statusCode} ${res.statusMessage}`,
+                details: data,
+                debug: {
+                  apiKeyLength: apiKey.length,
+                  prompt: prompt,
+                  requestBody: postData
+                }
+              })
+            });
+            return;
+          }
+          
+          try {
+            const result = JSON.parse(data);
+            resolve({
+              statusCode: 200,
+              headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': 'Content-Type',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS'
+              },
+              body: JSON.stringify({
+                id: result.id,
+                status: 'pending',
+                video_url: result.video_url,
+                thumbnail_url: result.thumbnail_url,
+                duration: result.duration
+              })
+            });
+          } catch (parseError) {
+            resolve({
+              statusCode: 500,
+              headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+              },
+              body: JSON.stringify({ 
+                error: `Failed to parse RunwayML response: ${parseError.message}`,
+                rawResponse: data,
+                debug: {
+                  apiKeyLength: apiKey.length,
+                  prompt: prompt
+                }
+              })
+            });
+          }
+        });
+      });
+
+      req.on('error', (error) => {
+        console.error('RunwayML API Request Error:', error);
+        resolve({
+          statusCode: 500,
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+          },
+          body: JSON.stringify({ 
+            error: `RunwayML API request failed: ${error.message}`,
+            debug: {
+              apiKeyLength: apiKey.length,
+              prompt: prompt
+            }
+          })
+        });
+      });
+
+      req.write(postData);
+      req.end();
+    });
+
   } catch (error) {
+    console.error('Netlify Function Error:', error);
     return {
       statusCode: 500,
       headers: {
