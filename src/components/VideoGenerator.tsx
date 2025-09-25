@@ -32,7 +32,13 @@ const VideoGenerator: React.FC = () => {
         setTimeout(() => {
           setVideos(prev => prev.map(v => 
             v.id === videoId 
-              ? { ...v, status: 'completed', progress: 100, duration: '0:04' }
+              ? { 
+                  ...v, 
+                  status: 'completed', 
+                  progress: 100, 
+                  duration: '0:04',
+                  thumbnail: 'https://via.placeholder.com/400x225/10b981/ffffff?text=Video+Ready!'
+                }
               : v
           ));
         }, 2000);
@@ -89,7 +95,7 @@ const VideoGenerator: React.FC = () => {
       const newVideo: GeneratedVideo = {
         id: videoResponse.id,
         prompt,
-        thumbnail: 'https://d64gsuwffb701.cloudfront.net/68d353f7219af5c54a6ed682_1758680186261_09e95541.',
+        thumbnail: 'https://via.placeholder.com/400x225/6366f1/ffffff?text=Video+Generating...',
         duration: '0:00',
         status: 'generating',
         progress: 0
