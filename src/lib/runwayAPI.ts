@@ -28,7 +28,7 @@ export class RunwayAPI {
       const response = await fetch(`${this.API_BASE}/video/generate`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.API_KEY}`,
+          'Authorization': this.API_KEY,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -63,7 +63,7 @@ export class RunwayAPI {
       const response = await fetch(`${this.API_BASE}/video/${videoId}`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${this.API_KEY}`,
+          'Authorization': this.API_KEY,
         }
       })
 
