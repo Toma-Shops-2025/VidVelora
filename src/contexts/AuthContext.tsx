@@ -62,6 +62,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const fetchUserProfile = async (userId: string) => {
     try {
       console.log('Fetching user profile for:', userId)
+      
+      // Get the current session to get user email
+      const { data: { session } } = await supabase.auth.getSession()
+      const userEmail = session?.user?.email || ''
+      const userFullName = session?.user?.user_metadata?.full_name || ''
+      
       const { data, error } = await supabase
         .from('users')
         .select('*')
@@ -76,8 +82,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           .from('users')
           .insert({
             id: userId,
-            email: supabaseUser?.email || '',
-            full_name: supabaseUser?.user_metadata?.full_name || '',
+            email: userEmail,
+            full_name: userFullName,
             is_admin: false
           })
           .select()
@@ -88,8 +94,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // Set a basic user object even if creation fails
           const basicUser = {
             id: userId,
-            email: supabaseUser?.email || '',
-            full_name: supabaseUser?.user_metadata?.full_name || '',
+            email: userEmail,
+            full_name: userFullName,
             is_admin: false,
             avatar_url: null
           }
@@ -111,10 +117,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error) {
       console.error('Error in fetchUserProfile:', error)
       // Set a basic user object even if there's an error
+      const { data: { session } } = await supabase.auth.getSession()
       const basicUser = {
         id: userId,
-        email: supabaseUser?.email || '',
-        full_name: supabaseUser?.user_metadata?.full_name || '',
+        email: session?.user?.email || '',
+        full_name: session?.user?.user_metadata?.full_name || '',
         is_admin: false,
         avatar_url: null
       }
