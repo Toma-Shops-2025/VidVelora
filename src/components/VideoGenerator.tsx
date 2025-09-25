@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Play, Download, Share2, Clock, Sparkles } from 'lucide-react';
+import { Play, Download, Share2, Clock, Sparkles, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { VideoService } from '@/lib/videoService';
 import { RunwayAPI } from '@/lib/runwayAPI';
@@ -18,7 +18,26 @@ const VideoGenerator: React.FC = () => {
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [videos, setVideos] = useState<GeneratedVideo[]>([]);
+  const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
   const { user } = useAuth();
+
+  // Handle play button click
+  const handlePlay = (videoId: string) => {
+    setPlayingVideoId(videoId);
+    toast({
+      title: "Video Playing",
+      description: "This is a simulation - in a real app, this would play the generated video!",
+    });
+    
+    // Simulate video playback duration (4 seconds)
+    setTimeout(() => {
+      setPlayingVideoId(null);
+      toast({
+        title: "Video Finished",
+        description: "Video playback completed!",
+      });
+    }, 4000);
+  };
 
   // Simulate progress updates
   const simulateProgress = (videoId: string) => {
@@ -235,9 +254,22 @@ const VideoGenerator: React.FC = () => {
                 
                 {video.status === 'completed' && (
                   <div className="flex gap-2">
-                    <button className="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center">
-                      <Play className="h-4 w-4 mr-1" />
-                      Play
+                    <button 
+                      onClick={() => handlePlay(video.id)}
+                      disabled={playingVideoId === video.id}
+                      className="flex-1 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 disabled:cursor-not-allowed text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center"
+                    >
+                      {playingVideoId === video.id ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                          Playing...
+                        </>
+                      ) : (
+                        <>
+                          <Play className="h-4 w-4 mr-1" />
+                          Play
+                        </>
+                      )}
                     </button>
                     <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-sm transition-colors">
                       <Download className="h-4 w-4" />
