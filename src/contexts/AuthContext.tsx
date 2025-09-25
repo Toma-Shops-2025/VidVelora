@@ -41,9 +41,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state change:', event, session?.user?.id)
         setSupabaseUser(session?.user ?? null)
         if (session?.user) {
-          await fetchUserProfile(session.user.id)
+          // Only fetch profile if we don't already have the user
+          if (!user || user.id !== session.user.id) {
+            await fetchUserProfile(session.user.id)
+          }
         } else {
           setUser(null)
           setLoading(false)
@@ -113,16 +117,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signIn = async (email: string, password: string) => {
     console.log('Attempting sign in for:', email)
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-    if (error) {
-      console.error('Sign in error:', error)
-      throw error
+    setLoading(true)
+    
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+      if (error) {
+        console.error('Sign in error:', error)
+        throw error
+      }
+      console.log('Sign in successful:', data)
+      
+      // Don't call fetchUserProfile here - let the auth state change handler do it
+      return data
+    } finally {
+      setLoading(false)
     }
-    console.log('Sign in successful:', data)
-    return data
   }
 
   const signUp = async (email: string, password: string, fullName: string) => {
