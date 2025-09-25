@@ -54,19 +54,19 @@ const VideoGenerator: React.FC = () => {
       const runwayResponse = await response.json();
 
       // Save to database
-      const response = await VideoService.generateVideo({
+      const videoResponse = await VideoService.generateVideo({
         prompt,
         duration: 4,
         style: 'cinematic'
       }, user.id);
 
       const newVideo: GeneratedVideo = {
-        id: response.id,
+        id: videoResponse.id,
         prompt,
-        thumbnail: 'https://d64gsuwffb70l.cloudfront.net/68d353f7219af5c54a6ed682_1758680186261_09e95541.webp',
+        thumbnail: 'https://d64gsuwffb701.cloudfront.net/68d353f7219af5c54a6ed682_1758680186261_09e95541.',
         duration: '0:00',
-        status: response.status,
-        progress: response.progress
+        status: videoResponse.status,
+        progress: videoResponse.progress
       };
       
       setVideos(prev => [newVideo, ...prev]);
