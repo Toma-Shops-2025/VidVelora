@@ -174,7 +174,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
 
   // Debug logging
-  console.log('AuthContext state:', { user, supabaseUser, loading, isAdmin })
+  console.log('AuthContext state:', { 
+    user: user ? { id: user.id, email: user.email, full_name: user.full_name, is_admin: user.is_admin } : null, 
+    supabaseUser: supabaseUser ? { id: supabaseUser.id, email: supabaseUser.email } : null, 
+    loading, 
+    isAdmin 
+  })
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
