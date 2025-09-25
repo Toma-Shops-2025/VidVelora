@@ -80,6 +80,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         if (createError) {
           console.error('Error creating user profile:', createError)
+          // Set a basic user object even if creation fails
+          setUser({
+            id: userId,
+            email: supabaseUser?.email || '',
+            full_name: supabaseUser?.user_metadata?.full_name || '',
+            is_admin: false,
+            avatar_url: null
+          })
         } else {
           console.log('User profile created:', newUser)
           setUser(newUser)
@@ -90,6 +98,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } catch (error) {
       console.error('Error in fetchUserProfile:', error)
+      // Set a basic user object even if there's an error
+      setUser({
+        id: userId,
+        email: supabaseUser?.email || '',
+        full_name: supabaseUser?.user_metadata?.full_name || '',
+        is_admin: false,
+        avatar_url: null
+      })
     } finally {
       setLoading(false)
     }
