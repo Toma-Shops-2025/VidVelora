@@ -34,12 +34,24 @@ const VideoGenerator: React.FC = () => {
     
     try {
       // Generate video using RunwayML API
-      const runwayResponse = await RunwayAPI.generateVideo({
-        prompt,
-        duration: 4, // 4 seconds for RunwayML
-        style: 'cinematic',
-        aspect_ratio: '16:9'
+      const response = await fetch('/.netlify/functions/generate-video', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: prompt,
+          duration: 4,
+          style: 'cinematic',
+          aspect_ratio: '16:9'
+        })
       });
+      
+      if (!response.ok) {
+        throw new Error(`Netlify Function error: ${response.statusText}`);
+      }
+      
+      const runwayResponse = await response.json();
 
       // Save to database
       const response = await VideoService.generateVideo({

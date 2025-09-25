@@ -18,7 +18,7 @@ export interface RunwayVideoResponse {
 
 export class RunwayAPI {
   private static readonly API_BASE = 'https://api.runwayml.com/v1'
-  private static readonly API_KEY = import.meta.env.VITE_RUNWAY_API_KEY
+  private static readonly API_KEY = process.env.RUNWAY_API_KEY;
 
   static async generateVideo(request: RunwayVideoRequest): Promise<RunwayVideoResponse> {
     try {
