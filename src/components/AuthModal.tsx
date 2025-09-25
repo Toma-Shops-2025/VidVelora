@@ -40,11 +40,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode }) => {
         description: "Request took too long. Please try again.",
         variant: "destructive",
       })
-    }, 15000) // Increased to 15 seconds
+    }, 30000) // Increased to 30 seconds
 
     try {
       if (mode === 'signin') {
         await signIn(email, password)
+        // Clear timeout immediately on success
+        clearTimeout(timeoutId)
         // Don't show success toast immediately - let the auth state change handle it
         onClose()
         setEmail('')
@@ -52,6 +54,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode }) => {
         setFullName('')
       } else {
         await signUp(email, password, fullName)
+        clearTimeout(timeoutId)
         toast({
           title: "Account created!",
           description: "Please check your email to verify your account.",
@@ -69,6 +72,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode }) => {
         statusText: error.statusText,
         code: error.code
       })
+      clearTimeout(timeoutId)
       toast({
         title: "Error",
         description: error.message || "Something went wrong. Please try again.",
