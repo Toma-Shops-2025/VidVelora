@@ -1,3 +1,5 @@
+const https = require('https');
+
 exports.handler = async (event, context) => {
   // Handle CORS preflight
   if (event.httpMethod === 'OPTIONS') {
@@ -19,24 +21,98 @@ exports.handler = async (event, context) => {
   try {
     const { prompt, duration, style, aspect_ratio } = JSON.parse(event.body);
     
-    // For now, let's return a mock response to test the function
-    return {
-      statusCode: 200,
+    const postData = JSON.stringify({
+      prompt,
+      duration: duration || 4,
+      style: style || 'cinematic',
+      aspect_ratio: aspect_ratio || '16:9',
+      quality: 'high'
+    });
+
+    const options = {
+      hostname: 'api.runwayml.com',
+      port: 443,
+      path: '/v1/gen4_turbo/video/generate',
+      method: 'POST',
       headers: {
+        'Authorization': `Bearer ${process.env.RUNWAY_API_KEY}`,
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS'
-      },
-      body: JSON.stringify({
-        id: 'test-video-' + Date.now(),
-        status: 'pending',
-        video_url: null,
-        thumbnail_url: null,
-        duration: 4,
-        message: 'Function is working - RunwayML integration coming next'
-      })
+        'Content-Length': Buffer.byteLength(postData)
+      }
     };
+
+    return new Promise((resolve) => {
+      const req = https.request(options, (res) => {
+        let data = '';
+        
+        res.on('data', (chunk) => {
+          data += chunk;
+        });
+        
+        res.on('end', () => {
+          if (res.statusCode !== 200) {
+            resolve({
+              statusCode: 500,
+              headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+              },
+              body: JSON.stringify({ 
+                error: `Runway API error: ${res.statusCode} ${res.statusMessage}`,
+                details: data
+              })
+            });
+            return;
+          }
+          
+          try {
+            const result = JSON.parse(data);
+            resolve({
+              statusCode: 200,
+              headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': 'Content-Type',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS'
+              },
+              body: JSON.stringify({
+                id: result.id,
+                status: 'pending',
+                video_url: result.video_url,
+                thumbnail_url: result.thumbnail_url,
+                duration: result.duration
+              })
+            });
+          } catch (parseError) {
+            resolve({
+              statusCode: 500,
+              headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+              },
+              body: JSON.stringify({ 
+                error: `Failed to parse response: ${parseError.message}`,
+                rawResponse: data
+              })
+            });
+          }
+        });
+      });
+
+      req.on('error', (error) => {
+        resolve({
+          statusCode: 500,
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+          },
+          body: JSON.stringify({ error: `Request failed: ${error.message}` })
+        });
+      });
+
+      req.write(postData);
+      req.end();
+    });
 
   } catch (error) {
     return {
