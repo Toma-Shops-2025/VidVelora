@@ -25,10 +25,10 @@ export class RunwayAPI {
       console.log('RunwayML API Key:', this.API_KEY ? 'Present' : 'Missing')
       console.log('RunwayML API Key length:', this.API_KEY?.length || 0)
       
-      const response = await fetch(`${this.API_BASE}/video/generate`, {
+      const response = await fetch(`${this.API_BASE}/gen-3/video/generate`, {
         method: 'POST',
         headers: {
-          'Authorization': this.API_KEY,
+          'Authorization': `Bearer ${this.API_KEY}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -60,10 +60,10 @@ export class RunwayAPI {
 
   static async getVideoStatus(videoId: string): Promise<RunwayVideoResponse> {
     try {
-      const response = await fetch(`${this.API_BASE}/video/${videoId}`, {
+      const response = await fetch(`${this.API_BASE}/gen-3/video/${videoId}`, {
         method: 'GET',
         headers: {
-          'Authorization': this.API_KEY,
+          'Authorization': `Bearer ${this.API_KEY}`,
         }
       })
 
