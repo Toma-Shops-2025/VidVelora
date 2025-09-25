@@ -37,7 +37,7 @@ const VideoGenerator: React.FC = () => {
                   status: 'completed', 
                   progress: 100, 
                   duration: '0:04',
-                  thumbnail: 'https://via.placeholder.com/400x225/10b981/ffffff?text=Video+Ready!'
+                  thumbnail: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIyNSIgdmlld0JveD0iMCAwIDQwMCAyMjUiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMjI1IiBmaWxsPSIjMTBiOTgxIi8+Cjx0ZXh0IHg9IjIwMCIgeT0iMTEyLjUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlZpZGVvIFJlYWR5ITwvdGV4dD4KPC9zdmc+'
                 }
               : v
           ));
@@ -92,18 +92,18 @@ const VideoGenerator: React.FC = () => {
         style: 'cinematic'
       }, user.id);
 
-      const newVideo: GeneratedVideo = {
+    const newVideo: GeneratedVideo = {
         id: videoResponse.id,
-        prompt,
-        thumbnail: 'https://via.placeholder.com/400x225/6366f1/ffffff?text=Video+Generating...',
-        duration: '0:00',
-        status: 'generating',
-        progress: 0
-      };
-      
-      setVideos(prev => [newVideo, ...prev]);
-      setPrompt('');
-      
+      prompt,
+        thumbnail: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIyNSIgdmlld0JveD0iMCAwIDQwMCAyMjUiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMjI1IiBmaWxsPSIjNjM2NmYxIi8+Cjx0ZXh0IHg9IjIwMCIgeT0iMTEyLjUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkdlbmVyYXRpbmcgVmlkZW8uLi48L3RleHQ+Cjwvc3ZnPg==',
+      duration: '0:00',
+      status: 'generating',
+      progress: 0
+    };
+    
+    setVideos(prev => [newVideo, ...prev]);
+    setPrompt('');
+    
       // Start progress simulation
       simulateProgress(videoResponse.id);
       
@@ -119,7 +119,7 @@ const VideoGenerator: React.FC = () => {
           const updatedVideo = userVideos.find(v => v.id === response.id);
           
           if (updatedVideo) {
-            setVideos(prev => prev.map(v => 
+        setVideos(prev => prev.map(v => 
               v.id === updatedVideo.id 
                 ? { 
                     ...v, 
@@ -127,19 +127,19 @@ const VideoGenerator: React.FC = () => {
                     progress: updatedVideo.progress,
                     duration: updatedVideo.duration ? `${Math.floor(updatedVideo.duration / 60)}:${(updatedVideo.duration % 60).toString().padStart(2, '0')}` : '0:00'
                   } 
-                : v
-            ));
+            : v
+        ));
             
             if (updatedVideo.status === 'completed' || updatedVideo.status === 'failed') {
               clearInterval(pollInterval);
-              setIsGenerating(false);
+        setIsGenerating(false);
               
               if (updatedVideo.status === 'completed') {
                 toast({
                   title: "Video Ready!",
                   description: "Your video has been successfully generated.",
                 });
-              } else {
+      } else {
                 toast({
                   title: "Generation Failed",
                   description: "There was an error generating your video. Please try again.",
