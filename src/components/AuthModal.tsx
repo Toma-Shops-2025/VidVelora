@@ -40,15 +40,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode }) => {
         description: "Request took too long. Please try again.",
         variant: "destructive",
       })
-    }, 10000) // 10 second timeout
+    }, 15000) // Increased to 15 seconds
 
     try {
       if (mode === 'signin') {
         await signIn(email, password)
-        toast({
-          title: "Welcome back!",
-          description: "You've successfully signed in.",
-        })
+        // Don't show success toast immediately - let the auth state change handle it
         onClose()
         setEmail('')
         setPassword('')

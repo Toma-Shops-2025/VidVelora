@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { User as SupabaseUser } from '@supabase/supabase-js'
 import { supabase, User } from '@/lib/supabase'
+import { toast } from '@/components/ui/use-toast'
 
 interface AuthContextType {
   user: User | null
@@ -99,6 +100,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else {
         console.log('User profile found:', data)
         setUser(data)
+        // Show success toast when user is fully loaded
+        toast({
+          title: "Welcome back!",
+          description: "You've successfully signed in.",
+        })
       }
     } catch (error) {
       console.error('Error in fetchUserProfile:', error)
